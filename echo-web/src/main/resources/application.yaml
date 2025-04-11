@@ -1,0 +1,25 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: echo-web
+  profiles:
+    active: local
+
+environment: ${ENVIRONMENT:local}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  info:
+    env:
+      enabled: true
+    git:
+      enabled: true
+      mode: simple
+    build:
+      enabled: true
+info:
+  docker:
+    image-tag: ${IMAGE_TAG:unknown}
