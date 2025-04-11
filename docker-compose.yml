@@ -1,0 +1,39 @@
+#For older docker compose versions the following line is required
+#version: '3.8'
+services:
+  eureka-server:
+    image: hurban/echo-web:latest
+    environment:
+      JAVA_TOOL_OPTIONS: "-XX:-UseContainerSupport"
+      #OpenTelemetry Config. Remove or change OTEL_SDK_DISABLED to false.
+      OTEL_SDK_DISABLED: false
+      OTEL_TRACES_SAMPLER: always_on
+      OTEL_TRACES_EXPORTER: otlp
+      OTEL_METRICS_EXPORTER: otlp
+      OTEL_LOGS_EXPORTER: otlp
+      OTEL_EXPORTER_OTLP_PROTOCOL: grpc
+      OTEL_SERVICE_NAME: echo-web
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://grafana-agent:4317
+      OTEL_PROPAGATORS: tracecontext,baggage,
+    networks:
+      - app-network
+    ports:
+      - "8080:8080"
+  grafana-agent:
+    image: hurban/grafana-agent:latest
+    container_name: grafana-agent
+    environment:
+      GRAFANA_CLOUD_API_KEY: #YOUR_GRAFANA_CLOUD_API_KEY
+      GRAFANA_CLOUD_PROMETHEUS_URL: https://prometheus-prod-13-prod-us-east-0.grafana.net/api/prom
+      GRAFANA_CLOUD_PROMETHEUS_USERNAME: 981665
+      GRAFANA_CLOUD_LOKI_URL: https://logs-prod-006.grafana.net/loki/api/v1/push
+      GRAFANA_CLOUD_LOKI_USERNAME: 593449
+      GRAFANA_CLOUD_TEMPO_ENDPOINT: tempo-prod-04-prod-us-east-0.grafana.net
+      GRAFANA_CLOUD_TEMPO_USERNAME: 589962
+    ports:
+      - "4317:4317"
+    networks:
+      - app-network
+networks:
+  app-network:
+    driver: bridge
